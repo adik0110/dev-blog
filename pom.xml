@@ -84,6 +84,11 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -98,6 +103,17 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>9.22.3</version>
+                <configuration>
+                    <cleanDisabled>false</cleanDisabled> <!-- Разрешаем clean -->
+                    <url>jdbc:postgresql://localhost:5432/dev_blog</url>
+                    <user>postgres</user>
+                    <password>qwerty123456</password>
                 </configuration>
             </plugin>
         </plugins>
