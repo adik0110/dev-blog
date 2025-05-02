@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
+@Table(name = "rating_votes")
 @Data
 public class RatingVote {
     @Id
