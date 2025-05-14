@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Главная страница</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="display-4 mb-4">Добро пожаловать в DevBlog!</h1>
+                <p class="lead">Платформа для разработчиков, где можно делиться знаниями и находить интересные материалы</p>
+
+                <div class="mt-4">
+                    <!-- Для неавторизованных -->
+                    <div sec:authorize="!isAuthenticated()">
+                        <a href="/register" class="btn btn-primary btn-lg mx-2">Зарегистрироваться</a>
+                        <a href="/login" class="btn btn-outline-primary btn-lg mx-2">Войти</a>
+                    </div>
+
+                    <!-- Для авторизованных -->
+                    <div sec:authorize="isAuthenticated()">
+                        <a href="/posts/create" class="btn btn-primary btn-lg mx-2">Создать статью</a>
+                        <a href="/posts" class="btn btn-outline-primary btn-lg mx-2">Все статьи</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Последние статьи -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h2 class="mb-4">Последние статьи</h2>
+                <div class="list-group">
+                    <a th:each="post : ${latestPosts}"
+                       th:href="@{/posts/{id}(id=${post.id})}"
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1" th:text="${post.title}">Заголовок статьи</h5>
+                            <small th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy')}">01.01.2023</small>
+                        </div>
+                        <p class="mb-1" th:text="${#strings.abbreviate(post.content, 100)}">Краткое содержание статьи...</p>
+                        <small th:each="tag : ${post.tags}" class="badge bg-secondary me-1" th:text="${tag.name}">tag</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

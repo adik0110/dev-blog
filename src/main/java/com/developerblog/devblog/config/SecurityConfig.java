@@ -30,8 +30,11 @@ public class SecurityConfig {
                         .failureUrl("/login?error=true")
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
+                        .logoutUrl("/logout")  // URL для выхода
+                        .logoutSuccessUrl("/?logout=true")  // Перенаправление после выхода
+                        .invalidateHttpSession(true)  // Уничтожение сессии
+                        .deleteCookies("JSESSIONID")  // Удаление cookies
+                        .permitAll()
                 )
                 .exceptionHandling(ex -> ex
                         .accessDeniedPage("/error/403")

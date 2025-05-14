@@ -17,13 +17,17 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String loginPage() {
-        return "auth/login";
+    public String loginPage(Model model) {
+        model.addAttribute("title", "Вход");
+        model.addAttribute("content", "auth/login");
+        return "base";
     }
 
     @GetMapping("/register")
-    public String registerPage() {
-        return "auth/register";
+    public String registerPage(Model model) {
+        model.addAttribute("title", "Регистрация");
+        model.addAttribute("content", "auth/register");
+        return "base";
     }
 
     @PostMapping("/register")
@@ -42,8 +46,10 @@ public class AuthController {
             userService.registerUser(user);
             return "redirect:/login?registered=true";
         } catch (Exception e) {
-            model.addAttribute("error", "Registration failed");
-            return "auth/register";
+            model.addAttribute("title", "Регистрация");  // Добавляем title
+            model.addAttribute("error", "Ошибка регистрации: " + e.getMessage());
+            model.addAttribute("content", "auth/register");  // Указываем фрагмент
+            return "base";  // Возвращаем базовый шаблон
         }
     }
 }
