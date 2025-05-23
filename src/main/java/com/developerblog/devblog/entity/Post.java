@@ -2,6 +2,8 @@ package com.developerblog.devblog.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -37,4 +39,7 @@ public class Post {
     private List<RatingVote> ratingVotes;
 
     private Integer rating = 0;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 }
