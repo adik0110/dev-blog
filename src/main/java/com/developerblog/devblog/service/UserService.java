@@ -31,9 +31,18 @@ public class UserService implements UserDetailsService {
 
     public void registerUser(User user) {
         log.info("Registering new user: {}", user.getUsername());
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Имя пользователя уже занято");
+        }
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email уже используется");
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(Role.USER);
+        if (user.getRole() == null) {
+            user.setRole(Role.USER);
+        }
+
         userRepository.save(user);
-        log.info("User {} registered successfully", user.getUsername());
+        log.info("Registered new {}: {}", user.getRole(), user.getUsername());
     }
 }

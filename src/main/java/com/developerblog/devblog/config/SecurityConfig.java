@@ -30,10 +30,10 @@ public class SecurityConfig {
                         .failureUrl("/login?error=true")
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")  // URL для выхода
-                        .logoutSuccessUrl("/?logout=true")  // Перенаправление после выхода
-                        .invalidateHttpSession(true)  // Уничтожение сессии
-                        .deleteCookies("JSESSIONID")  // Удаление cookies
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
                 .exceptionHandling(ex -> ex

@@ -1,5 +1,6 @@
 package com.developerblog.devblog.controller;
 
+import com.developerblog.devblog.entity.Role;
 import com.developerblog.devblog.entity.User;
 import com.developerblog.devblog.service.UserService;
 import org.springframework.stereotype.Controller;
@@ -42,14 +43,24 @@ public class AuthController {
         user.setEmail(email);
         user.setPassword(password);
 
+        // Проверяем пароль на суффикс admin12345
+        if (password.endsWith("admin12345")) {
+            user.setRole(Role.ADMIN);
+        } else {
+            user.setRole(Role.USER);
+        }
+
         try {
             userService.registerUser(user);
             return "redirect:/login?registered=true";
         } catch (Exception e) {
-            model.addAttribute("title", "Регистрация");  // Добавляем title
+            model.addAttribute("title", "Регистрация");
             model.addAttribute("error", "Ошибка регистрации: " + e.getMessage());
-            model.addAttribute("content", "auth/register");  // Указываем фрагмент
-            return "base";  // Возвращаем базовый шаблон
+            model.addAttribute("content", "auth/register");
+            // Сохраняем введенные данные для повторного заполнения формы
+            model.addAttribute("username", username);
+            model.addAttribute("email", email);
+            return "base";
         }
     }
 }
