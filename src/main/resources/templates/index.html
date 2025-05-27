@@ -41,7 +41,7 @@
                             <small th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy')}">01.01.2023</small>
                         </div>
                         <p class="mb-1" th:text="${#strings.abbreviate(post.content, 100)}">Краткое содержание статьи...</p>
-                        <small th:each="tag : ${post.tags}" class="badge bg-secondary me-1" th:text="${tag.name}">tag</small>
+                        <small th:each="tag : ${post.tags}" class="badge bg-secondary me-1" th:text="${tag}">tag</small>
                     </a>
                 </div>
             </div>

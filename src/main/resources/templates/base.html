@@ -38,6 +38,16 @@
             display: flex;
             gap: 0.5rem;
         }
+        .post-content {
+            white-space: pre-line;
+        }
+        .tag-badge {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tag-badge:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -47,6 +57,9 @@
         <div class="container">
             <a class="navbar-brand" href="/">DevBlog</a>
             <div class="navbar-nav">
+                <!-- Общая кнопка для всех -->
+                <a class="nav-link" href="/posts">Все статьи</a>
+
                 <!-- Для неавторизованных -->
                 <div sec:authorize="!isAuthenticated()" class="nav-buttons">
                     <a class="nav-link" href="/login">Войти</a>
@@ -70,7 +83,7 @@
     <div th:if="${param.logout}" class="alert alert-info mt-3">
         Вы успешно вышли из системы.
     </div>
-    <div th:replace="${content}"></div>
+    <div th:replace="~{${content}}"></div>
 </main>
 
 <!-- Footer -->

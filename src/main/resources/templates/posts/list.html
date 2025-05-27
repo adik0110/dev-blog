@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Все статьи</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">Все статьи</h1>
+
+                <div class="list-group">
+                    <a th:each="post : ${posts}"
+                       th:href="@{/posts/{id}(id=${post.id})}"
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1" th:text="${post.title}">Заголовок</h5>
+                            <small th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy')}">Дата</small>
+                        </div>
+                        <p class="mb-1" th:text="${#strings.abbreviate(post.content, 200)}">Краткое содержание...</p>
+                        <small th:each="tag : ${post.tags}"
+                               class="badge bg-secondary me-1"
+                               th:text="${tag}">тег</small>
+                        <div class="mt-2">
+                                <span class="badge bg-primary me-2">
+                                    Рейтинг: <span th:text="${post.rating}">0</span>
+                                </span>
+                            <span class="badge bg-info">
+                                    Комментарии: <span th:text="${post.commentCount}">0</span>
+                                </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

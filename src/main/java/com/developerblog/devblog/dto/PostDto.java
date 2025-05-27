@@ -1,20 +1,25 @@
 package com.developerblog.devblog.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PostDto {
     private Long id;
     private String title;
     private String content;
-    private String authorUsername; // Упрощенное представление автора
-    private List<String> tags;     // Только названия тегов
+    private List<Long> tagIds; // Для приема ID выбранных тегов
+    private String authorUsername;
+    private List<String> tags;
     private Integer rating;
-    private Integer commentCount;  // Количество комментариев
+    private Integer commentCount;
     private LocalDateTime createdAt;
 }
