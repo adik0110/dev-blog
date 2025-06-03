@@ -18,9 +18,11 @@ import java.util.Set;
 public class TagService {
 
     private final TagRepository tagRepository;
+    private final EntityManager entityManager;
 
-    public TagService(TagRepository tagRepository) {
+    public TagService(TagRepository tagRepository, EntityManager entityManager) {
         this.tagRepository = tagRepository;
+        this.entityManager = entityManager;
     }
 
     public List<Tag> getAllTags() {
@@ -33,7 +35,18 @@ public class TagService {
         tagRepository.save(tag);
     }
 
+    @Transactional
     public void deleteTag(Long id) {
+        if (!tagRepository.existsById(id)) {
+            throw new EntityNotFoundException("Tag not found with id: " + id);
+        }
+
+        // Удаляем связи из таблицы post_tags
+        entityManager.createNativeQuery("DELETE FROM post_tags WHERE tag_id = :tagId")
+                .setParameter("tagId", id)
+                .executeUpdate();
+
+        // Удаляем сам тег
         tagRepository.deleteById(id);
     }
 }
