@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Все статьи</title>
 </head>
@@ -11,26 +12,45 @@
                 <h1 class="mb-4">Все статьи</h1>
 
                 <div class="list-group">
-                    <a th:each="post : ${posts}"
-                       th:href="@{/posts/{id}(id=${post.id})}"
-                       class="list-group-item list-group-item-action">
+                    <div th:each="post : ${posts}" class="list-group-item">
                         <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1" th:text="${post.title}">Заголовок</h5>
+                            <h5 class="mb-1">
+                                <a th:href="@{/posts/{id}(id=${post.id})}" th:text="${post.title}">Заголовок</a>
+                            </h5>
                             <small th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy')}">Дата</small>
                         </div>
                         <p class="mb-1" th:text="${#strings.abbreviate(post.content, 200)}">Краткое содержание...</p>
                         <small th:each="tag : ${post.tags}"
                                class="badge bg-secondary me-1"
                                th:text="${tag}">тег</small>
-                        <div class="mt-2">
+                        <div class="mt-2 d-flex justify-content-between align-items-center">
+                            <div>
                                 <span class="badge bg-primary me-2">
                                     Рейтинг: <span th:text="${post.rating}">0</span>
                                 </span>
-                            <span class="badge bg-info">
+                                <span class="badge bg-info">
                                     Комментарии: <span th:text="${post.commentCount}">0</span>
                                 </span>
+                            </div>
+                            <!-- Кнопки для автора -->
+                            <div sec:authorize="isAuthenticated()"
+                                 th:if="${#authentication.principal.username == post.authorUsername}">
+                                <a th:href="@{'/posts/' + ${post.id} + '/edit'}"
+                                   class="btn btn-sm btn-outline-primary me-1" title="Редактировать статью">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form th:action="@{'/posts/' + ${post.id} + '/delete'}"
+                                      method="post" class="d-inline"
+                                      onsubmit="return confirm('Вы уверены, что хотите удалить эту статью?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Удалить статью">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                </form>
+                            </div>
+
                         </div>
-                    </a>
+                    </div>
                 </div>
             </div>
         </div>

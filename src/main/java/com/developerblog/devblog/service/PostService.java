@@ -47,6 +47,34 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public PostDto getPostById(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
+        return convertToDto(post);
+    }
+
+    @Transactional
+    public void updatePost(Long postId, PostDto postDto) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        post.setTitle(postDto.getTitle());
+        post.setContent(postDto.getContent());
+
+        if (postDto.getTagIds() != null && !postDto.getTagIds().isEmpty()) {
+            List<Tag> tags = tagRepository.findAllById(postDto.getTagIds());
+            post.setTags(tags);
+        }
+
+        postRepository.save(post);
+    }
+
+    @Transactional
+    public void deletePost(Long postId) {
+        postRepository.deleteById(postId);
+    }
+
     private PostDto convertToDto(Post post) {
         return PostDto.builder()
                 .id(post.getId())
@@ -70,16 +98,4 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-//    private PostDto convertToDto(Post post) {
-//        return PostDto.builder()
-//                .id(post.getId())
-//                .title(post.getTitle())
-//                .content(post.getContent())
-//                .authorUsername(post.getAuthor().getUsername())
-//                .tags(post.getTags().stream().map(Tag::getName).collect(Collectors.toList()))
-//                .rating(post.getRating())
-//                .commentCount(post.getComments().size())
-//                .createdAt(post.getCreatedAt())
-//                .build();
-//    }
 }

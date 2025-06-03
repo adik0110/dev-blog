@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${#strings.isEmpty(title) ? 'DevBlog' : title + ' | DevBlog'}">DevBlog</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         html, body {
@@ -48,6 +50,33 @@
         .tag-badge:hover {
             opacity: 0.8;
         }
+
+        .post-content {
+            white-space: pre-line;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+
+        .post-content pre {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        .post-content code {
+            background: #f5f5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
@@ -89,7 +118,7 @@
 <!-- Footer -->
 <footer class="bg-light text-center">
     <div class="container">
-        <p class="mb-0">© 2023 DevBlog. Все права защищены.</p>
+        <p class="mb-0">© 2025 DevBlog. Все права защищены.</p>
     </div>
 </footer>
 

@@ -3,12 +3,10 @@ package com.developerblog.devblog.controller;
 import com.developerblog.devblog.dto.PostDto;
 import com.developerblog.devblog.service.PostService;
 import com.developerblog.devblog.service.TagService;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
@@ -54,5 +52,67 @@ public class PostController {
         model.addAttribute("content", "posts/list");
         model.addAttribute("posts", postService.getAllPosts());
         return "base";
+    }
+
+    @GetMapping("/{postId}")
+    public String getPostDetails(@PathVariable Long postId,
+                                 Principal principal,
+                                 Model model) {
+        PostDto postDto = postService.getPostById(postId);
+        model.addAttribute("title", postDto.getTitle());
+        model.addAttribute("content", "posts/detail");
+        model.addAttribute("post", postDto);
+
+        // Проверяем, является ли текущий пользователь автором поста
+        boolean isAuthor = principal != null &&
+                principal.getName().equals(postDto.getAuthorUsername());
+        model.addAttribute("isAuthor", isAuthor);
+
+        return "base";
+    }
+
+    @GetMapping("/{postId}/edit")
+    public String showEditForm(@PathVariable Long postId,
+                               Principal principal,
+                               Model model) {
+        PostDto postDto = postService.getPostById(postId);
+
+        // Проверка прав доступа
+        if (!principal.getName().equals(postDto.getAuthorUsername())) {
+            throw new AccessDeniedException("Вы не можете редактировать этот пост");
+        }
+
+        model.addAttribute("title", "Редактирование статьи");
+        model.addAttribute("content", "posts/edit");
+        model.addAttribute("postDto", postDto);
+        model.addAttribute("allTags", tagService.getAllTags());
+        return "base";
+    }
+
+    @PostMapping("/{postId}/edit")
+    public String updatePost(@PathVariable Long postId,
+                             @ModelAttribute PostDto postDto,
+                             Principal principal) {
+        // Проверка прав доступа
+        PostDto existingPost = postService.getPostById(postId);
+        if (!principal.getName().equals(existingPost.getAuthorUsername())) {
+            throw new AccessDeniedException("Вы не можете редактировать этот пост");
+        }
+
+        postService.updatePost(postId, postDto);
+        return "redirect:/posts/" + postId;
+    }
+
+    @PostMapping("/{postId}/delete")
+    public String deletePost(@PathVariable Long postId,
+                             Principal principal) {
+        // Проверка прав доступа
+        PostDto existingPost = postService.getPostById(postId);
+        if (!principal.getName().equals(existingPost.getAuthorUsername())) {
+            throw new AccessDeniedException("Вы не можете удалить этот пост");
+        }
+
+        postService.deletePost(postId);
+        return "redirect:/";
     }
 }
