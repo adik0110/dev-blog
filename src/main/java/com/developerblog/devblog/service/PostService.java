@@ -21,6 +21,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
+    private final CommentService commentService;
 
     @Transactional
     public void createPost(PostDto postDto, String username) {
@@ -85,7 +86,7 @@ public class PostService {
                         post.getTags().stream().map(Tag::getName).collect(Collectors.toList()) :
                         Collections.emptyList())
                 .rating(post.getRating())
-                .commentCount(post.getComments() != null ? post.getComments().size() : 0)
+                .comments(commentService.getCommentsByPostId(post.getId()))
                 .createdAt(post.getCreatedAt())
                 .build();
     }

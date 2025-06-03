@@ -1,5 +1,6 @@
 package com.developerblog.devblog.dto;
 
+import com.developerblog.devblog.entity.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,6 @@ public class PostDto {
     private String authorUsername;
     private List<String> tags;
     private Integer rating;
-    private Integer commentCount;
+    private List<CommentDto> comments;
     private LocalDateTime createdAt;
 }

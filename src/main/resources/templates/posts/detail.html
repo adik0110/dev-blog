@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <title>Детали статьи</title>
 </head>
@@ -22,25 +23,25 @@
         <!-- Заголовок и метаданные -->
         <h1 th:text="${post.title}"></h1>
         <div class="d-flex justify-content-between mb-4">
-                        <span class="text-muted">
-                            Автор: <span th:text="${post.authorUsername}"></span>
-                        </span>
+                    <span class="text-muted">
+                        Автор: <span th:text="${post.authorUsername}"></span>
+                    </span>
           <span class="text-muted"
                 th:text="${#temporals.format(post.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
         </div>
 
         <!-- Теги -->
         <div class="mb-4">
-                        <span th:each="tag : ${post.tags}"
-                              class="badge bg-secondary me-1"
-                              th:text="${tag}"></span>
+                    <span th:each="tag : ${post.tags}"
+                          class="badge bg-secondary me-1"
+                          th:text="${tag}"></span>
         </div>
 
         <!-- Рейтинг -->
         <div class="mb-4">
-                        <span class="badge bg-primary">
-                            Рейтинг: <span th:text="${post.rating}"></span>
-                        </span>
+                    <span class="badge bg-primary">
+                        Рейтинг: <span th:text="${post.rating}"></span>
+                    </span>
         </div>
 
         <!-- Содержание поста -->
@@ -51,13 +52,48 @@
         </div>
 
         <!-- Комментарии -->
-        <div class="card">
+        <div class="card mb-4">
           <div class="card-header">
-            <h5>Комментарии (<span th:text="${post.commentCount}"></span>)</h5>
+            <h5>Комментарии (<span th:text="${post.comments.size()}"></span>)</h5>
           </div>
           <div class="card-body">
-            <!-- Здесь будет список комментариев -->
-            <p class="text-muted">Комментариев пока нет</p>
+            <!-- Форма добавления комментария -->
+            <div sec:authorize="isAuthenticated()" class="mb-4">
+              <form th:action="@{'/posts/' + ${post.id} + '/comments'}" method="post">
+                <div class="form-group">
+                                    <textarea class="form-control" name="text" rows="3"
+                                              placeholder="Оставьте ваш комментарий..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Отправить</button>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+              </form>
+            </div>
+
+            <!-- Список комментариев -->
+            <div th:if="${post.comments.empty}" class="text-muted">
+              Комментариев пока нет
+            </div>
+            <div th:each="comment : ${post.comments}" class="mb-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <strong th:text="${comment.authorUsername}"></strong>
+                  <small class="text-muted ms-2"
+                         th:text="${#temporals.format(comment.createdAt, 'dd.MM.yyyy HH:mm')}"></small>
+                </div>
+                <div sec:authorize="isAuthenticated()"
+                     th:if="${#authentication.principal.username == comment.authorUsername}">
+                  <form th:action="@{'/posts/' + ${post.id} + '/comments/' + ${comment.id} + '/delete'}"
+                        method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                  </form>
+                </div>
+              </div>
+              <div class="mt-1" th:text="${comment.text}"></div>
+              <hr class="my-2">
+            </div>
           </div>
         </div>
       </div>

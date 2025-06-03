@@ -23,4 +23,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     // 4. Найти комментарии по содержанию (поиск)
     @Query("SELECT c FROM Comment c WHERE c.text LIKE %:keyword%")
     List<Comment> searchByText(@Param("keyword") String keyword);
+
+    List<Comment> findByPostId(Long postId);
 }

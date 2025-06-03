@@ -29,7 +29,7 @@
                                     Рейтинг: <span th:text="${post.rating}">0</span>
                                 </span>
                                 <span class="badge bg-info">
-                                    Комментарии: <span th:text="${post.commentCount}">0</span>
+                                    Комментарии: <span th:text="${post.comments.size()}">0</span>
                                 </span>
                             </div>
                             <!-- Кнопки для автора -->
