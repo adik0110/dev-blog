@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Управление тегами</title>
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Управление тегами</h2>
+
+    <!-- Форма добавления нового тега -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Добавить новый тег</h5>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/admin/tags}" method="post">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Название тега</label>
+                    <input type="text" class="form-control" id="name"
+                           th:field="*{newTag.name}" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Создать</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Список существующих тегов -->
+    <div class="card">
+        <div class="card-header">
+            <h5>Список тегов</h5>
+        </div>
+        <div class="card-body">
+            <div th:if="${tags.empty}" class="alert alert-info">
+                Теги не найдены
+            </div>
+            <ul class="list-group" th:unless="${tags.empty}">
+                <li class="list-group-item d-flex justify-content-between align-items-center"
+                    th:each="tag : ${tags}">
+                    <span th:text="${tag.name}"></span>
+                    <form th:action="@{'/admin/tags/' + ${tag.id} + '/delete'}" method="post">
+                        <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteForms = document.querySelectorAll('form[action*="/delete"]');
+
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                if (!confirm('Вы уверены, что хотите удалить этот тег? Он будет удален из всех статей.')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+</html>
