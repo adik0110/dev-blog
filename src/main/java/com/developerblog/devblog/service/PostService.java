@@ -25,7 +25,7 @@ public class PostService {
     public final RatingVoteRepository ratingVoteRepository;
 
     @Transactional
-    public void createPost(PostDto postDto, String username) {
+    public PostDto createPost(PostDto postDto, String username) {
         User author = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
@@ -40,6 +40,7 @@ public class PostService {
         }
 
         postRepository.save(post);
+        return postDto;
     }
 
     @Transactional(readOnly = true)
@@ -117,7 +118,7 @@ public class PostService {
     }
 
     @Transactional
-    public void updatePost(Long postId, PostDto postDto) {
+    public PostDto updatePost(Long postId, PostDto postDto) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
@@ -130,6 +131,7 @@ public class PostService {
         }
 
         postRepository.save(post);
+        return postDto;
     }
 
     @Transactional
