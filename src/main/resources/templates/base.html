@@ -89,6 +89,11 @@
                 <!-- Общая кнопка для всех -->
                 <a class="nav-link" href="/posts">Все статьи</a>
 
+                <!-- Для админа -->
+                <div sec:authorize="hasRole('ADMIN')" class="nav-buttons">
+                    <a class="nav-link" href="/admin/tags">Теги</a>
+                </div>
+
                 <!-- Для неавторизованных -->
                 <div sec:authorize="!isAuthenticated()" class="nav-buttons">
                     <a class="nav-link" href="/login">Войти</a>
@@ -106,6 +111,7 @@
         </div>
     </nav>
 </header>
+
 
 <!-- Main Content -->
 <main class="container">

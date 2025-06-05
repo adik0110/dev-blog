@@ -26,7 +26,7 @@
                         <div class="mt-2 d-flex justify-content-between align-items-center">
                             <div>
                                 <span class="badge bg-primary me-2">
-                                    Рейтинг: <span th:text="${post.rating}">0</span>
+                                    Рейтинг: <span th:text="${post.getLikePercentage()} + '%'">0%</span>
                                 </span>
                                 <span class="badge bg-info">
                                     Комментарии: <span th:text="${post.comments.size()}">0</span>
