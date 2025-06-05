@@ -38,7 +38,22 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<RatingVote> ratingVotes;
 
-    private Integer rating = 0;
+    @Column(nullable = false)
+    private Integer likesCount = 0;
+
+    @Column(nullable = false)
+    private Integer dislikesCount = 0;
+
+    @Transient
+    public Integer getTotalVotes() {
+        return likesCount + dislikesCount;
+    }
+
+    @Transient
+    public Integer getLikePercentage() {
+        if (getTotalVotes() == 0) return 0;
+        return (int) Math.round((likesCount * 100.0) / getTotalVotes());
+    }
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

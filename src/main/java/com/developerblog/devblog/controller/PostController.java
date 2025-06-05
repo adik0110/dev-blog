@@ -58,12 +58,11 @@ public class PostController {
     public String getPostDetails(@PathVariable Long postId,
                                  Principal principal,
                                  Model model) {
-        PostDto postDto = postService.getPostById(postId);
+        PostDto postDto = postService.getPostById(postId, principal != null ? principal.getName() : null);
         model.addAttribute("title", postDto.getTitle());
         model.addAttribute("content", "posts/detail");
         model.addAttribute("post", postDto);
 
-        // Проверяем, является ли текущий пользователь автором поста
         boolean isAuthor = principal != null &&
                 principal.getName().equals(postDto.getAuthorUsername());
         model.addAttribute("isAuthor", isAuthor);
@@ -71,11 +70,32 @@ public class PostController {
         return "base";
     }
 
+    @PostMapping("/{postId}/like")
+    public String likePost(@PathVariable Long postId,
+                           Principal principal) {
+        if (principal == null) {
+            throw new AccessDeniedException("Для голосования необходимо авторизоваться");
+        }
+        postService.processVote(postId, principal.getName(), "LIKE");
+        return "redirect:/posts/" + postId;
+    }
+
+    @PostMapping("/{postId}/dislike")
+    public String dislikePost(@PathVariable Long postId,
+                              Principal principal) {
+        if (principal == null) {
+            throw new AccessDeniedException("Для голосования необходимо авторизоваться");
+        }
+        postService.processVote(postId, principal.getName(), "DISLIKE");
+        return "redirect:/posts/" + postId;
+    }
+
     @GetMapping("/{postId}/edit")
     public String showEditForm(@PathVariable Long postId,
                                Principal principal,
                                Model model) {
-        PostDto postDto = postService.getPostById(postId);
+        // Передаем имя пользователя в getPostById
+        PostDto postDto = postService.getPostById(postId, principal != null ? principal.getName() : null);
 
         // Проверка прав доступа
         if (!principal.getName().equals(postDto.getAuthorUsername())) {
@@ -93,8 +113,8 @@ public class PostController {
     public String updatePost(@PathVariable Long postId,
                              @ModelAttribute PostDto postDto,
                              Principal principal) {
-        // Проверка прав доступа
-        PostDto existingPost = postService.getPostById(postId);
+        // Проверка прав доступа с передачей имени пользователя
+        PostDto existingPost = postService.getPostById(postId, principal != null ? principal.getName() : null);
         if (!principal.getName().equals(existingPost.getAuthorUsername())) {
             throw new AccessDeniedException("Вы не можете редактировать этот пост");
         }
@@ -106,8 +126,8 @@ public class PostController {
     @PostMapping("/{postId}/delete")
     public String deletePost(@PathVariable Long postId,
                              Principal principal) {
-        // Проверка прав доступа
-        PostDto existingPost = postService.getPostById(postId);
+        // Проверка прав доступа с передачей имени пользователя
+        PostDto existingPost = postService.getPostById(postId, principal != null ? principal.getName() : null);
         if (!principal.getName().equals(existingPost.getAuthorUsername())) {
             throw new AccessDeniedException("Вы не можете удалить этот пост");
         }

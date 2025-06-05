@@ -2,6 +2,7 @@ package com.developerblog.devblog.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "rating_votes")
@@ -19,6 +20,7 @@ public class RatingVote {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @Column(nullable = false)
-    private Integer value; // +1 или -1
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "vote_type", nullable = false)
+    private VoteType voteType;
 }

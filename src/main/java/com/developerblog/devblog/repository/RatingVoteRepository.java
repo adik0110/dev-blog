@@ -8,5 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface RatingVoteRepository extends JpaRepository<RatingVote, Long> {
-    Optional<RatingVote> findByUserAndPost(User user, Post post);
+    Optional<RatingVote> findByPostAndUser(Post post, User user);
+    Optional<RatingVote> findByPostAndUserUsername(Post post, String username);
 }

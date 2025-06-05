@@ -1,10 +1,9 @@
 package com.developerblog.devblog.service;
 
 import com.developerblog.devblog.dto.PostDto;
-import com.developerblog.devblog.entity.Post;
-import com.developerblog.devblog.entity.Tag;
-import com.developerblog.devblog.entity.User;
+import com.developerblog.devblog.entity.*;
 import com.developerblog.devblog.repository.PostRepository;
+import com.developerblog.devblog.repository.RatingVoteRepository;
 import com.developerblog.devblog.repository.TagRepository;
 import com.developerblog.devblog.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +22,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final CommentService commentService;
+    public final RatingVoteRepository ratingVoteRepository;
 
     @Transactional
     public void createPost(PostDto postDto, String username) {
@@ -49,10 +50,70 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostDto getPostById(Long id) {
+    public PostDto getPostById(Long id, String username) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
-        return convertToDto(post);
+
+        PostDto postDto = convertToDto(post);
+
+        if (username != null) {
+            Optional<RatingVote> userVote = ratingVoteRepository.findByPostAndUserUsername(post, username);
+            userVote.ifPresent(vote -> postDto.setCurrentUserVote(vote.getVoteType().name()));
+        }
+
+        return postDto;
+    }
+
+    @Transactional
+    public void processVote(Long postId, String username, String voteTypeStr) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        VoteType voteType = VoteType.valueOf(voteTypeStr);
+
+        Optional<RatingVote> existingVote = ratingVoteRepository.findByPostAndUser(post, user);
+
+        if (existingVote.isPresent()) {
+            RatingVote vote = existingVote.get();
+            if (vote.getVoteType() == voteType) {
+                // Удаляем голос, если он такой же
+                ratingVoteRepository.delete(vote);
+                if (voteType == VoteType.LIKE) {
+                    post.setLikesCount(post.getLikesCount() - 1);
+                } else {
+                    post.setDislikesCount(post.getDislikesCount() - 1);
+                }
+            } else {
+                // Меняем голос на противоположный
+                vote.setVoteType(voteType);
+                if (voteType == VoteType.LIKE) {
+                    post.setLikesCount(post.getLikesCount() + 1);
+                    post.setDislikesCount(post.getDislikesCount() - 1);
+                } else {
+                    post.setLikesCount(post.getLikesCount() - 1);
+                    post.setDislikesCount(post.getDislikesCount() + 1);
+                }
+                ratingVoteRepository.save(vote);
+            }
+        } else {
+            // Добавляем новый голос
+            RatingVote newVote = new RatingVote();
+            newVote.setPost(post);
+            newVote.setUser(user);
+            newVote.setVoteType(voteType);
+            ratingVoteRepository.save(newVote);
+
+            if (voteType == VoteType.LIKE) {
+                post.setLikesCount(post.getLikesCount() + 1);
+            } else {
+                post.setDislikesCount(post.getDislikesCount() + 1);
+            }
+        }
+
+        postRepository.save(post);
     }
 
     @Transactional
@@ -85,7 +146,8 @@ public class PostService {
                 .tags(post.getTags() != null ?
                         post.getTags().stream().map(Tag::getName).collect(Collectors.toList()) :
                         Collections.emptyList())
-                .rating(post.getRating())
+                .likesCount(post.getLikesCount())
+                .dislikesCount(post.getDislikesCount())
                 .comments(commentService.getCommentsByPostId(post.getId()))
                 .createdAt(post.getCreatedAt())
                 .build();
