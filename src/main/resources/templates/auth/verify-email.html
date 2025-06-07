@@ -1,19 +1,20 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Подтверждение email</title>
-</head>
-<body>
-<h1>Подтверждение регистрации</h1>
-<p>На email <span th:text="${email}"></span> отправлен код подтверждения.</p>
+<div class="auth-container bg-white shadow-sm p-4">
+    <h1 class="h4 mb-4 text-center">Подтверждение регистрации</h1>
+    <p>На email <strong th:text="${email}"></strong> отправлен код подтверждения.</p>
 
-<form th:action="@{/verify-email}" method="post">
-    <input type="hidden" name="email" th:value="${email}">
-    <label for="code">Код подтверждения:</label>
-    <input type="text" id="code" name="code" required>
-    <button type="submit">Подтвердить</button>
-</form>
+    <form th:action="@{/verify-email}" method="post" class="needs-validation" novalidate>
+        <input type="hidden" name="email" th:value="${email}">
 
-<p th:if="${error}" style="color: red;" th:text="${error}"></p>
-</body>
-</html>
+        <div class="mb-3">
+            <label for="code" class="form-label">Код подтверждения</label>
+            <input type="text" id="code" name="code" class="form-control" required pattern="\\d{6}" maxlength="6" placeholder="Введите 6-значный код">
+            <div class="invalid-feedback">
+                Пожалуйста, введите корректный 6-значный код.
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Подтвердить</button>
+    </form>
+
+    <p th:if="${error}" class="mt-3 text-danger" th:text="${error}"></p>
+</div>
