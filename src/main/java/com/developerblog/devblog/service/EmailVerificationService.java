@@ -1,60 +1,34 @@
-//package com.developerblog.devblog.service;
-//
-//import okhttp3.*;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.stereotype.Service;
-//
-//import java.io.IOException;
-//
-//@Service
-//@RequiredArgsConstructor
-//public class EmailVerificationService {
-//
-//    private final OkHttpClient client;
-//
-//    @Value("${sendgrid.api.key}")
-//    private String apiKey;
-//
-//    @Value("${sendgrid.mail}")
-//    private String fromEmail;
-//
-//    public void sendVerificationEmail(String to, String code) throws IOException {
-//
-//        String json = """
-//        {
-//          "personalizations": [
-//            {
-//              "to": [ { "email": "%s" } ],
-//              "subject": "Код подтверждения регистрации"
-//            }
-//          ],
-//          "from": { "email": "%s" },
-//          "content": [
-//            {
-//              "type": "text/plain",
-//              "value": "Ваш код подтверждения: %s"
-//            }
-//          ]
-//        }
-//        """.formatted(to, fromEmail, code);
-//
-//        RequestBody body = RequestBody.create(
-//                json,
-//                MediaType.parse("application/json; charset=utf-8")
-//        );
-//
-//        Request request = new Request.Builder()
-//                .url("https://api.sendgrid.com/v3/mail/send")
-//                .addHeader("Authorization", "Bearer " + apiKey)
-//                .addHeader("Content-Type", "application/json")
-//                .post(body)
-//                .build();
-//
-//        try (Response response = client.newCall(request).execute()) {
-//            if (!response.isSuccessful()) {
-//                throw new IOException("SendGrid error: " + response.code() + " - " + response.body().string());
-//            }
-//        }
-//    }
-//}
+package com.developerblog.devblog.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class EmailVerificationService {
+    private final RestTemplate restTemplate;
+
+    public void sendVerificationEmail(String email, String code) {
+        String fastApiUrl = "http://localhost:8001/send-verification-email";
+
+        Map<String, String> request = new HashMap<>();
+        request.put("email", email);
+        request.put("code", code);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                fastApiUrl,
+                request,
+                String.class
+        );
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Не удалось отправить письмо подтверждения");
+        }
+    }
+}
+

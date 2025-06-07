@@ -5,7 +5,8 @@ CREATE TABLE users (
     password VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     reputation_score INTEGER DEFAULT 0,
-    role VARCHAR(20) NOT NULL DEFAULT 'USER'
+    role VARCHAR(20) NOT NULL DEFAULT 'USER',
+    enabled BOOLEAN DEFAULT FALSE
 );
 
 -- Создание таблицы tags

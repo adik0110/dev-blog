@@ -2,8 +2,8 @@ package com.developerblog.devblog.controller;
 
 import com.developerblog.devblog.entity.Role;
 import com.developerblog.devblog.entity.User;
-//import com.developerblog.devblog.service.EmailVerificationService;
-//import com.developerblog.devblog.service.TemporaryUserStorage;
+import com.developerblog.devblog.service.EmailVerificationService;
+import com.developerblog.devblog.service.TemporaryUserStorage;
 import com.developerblog.devblog.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.UUID;
+import java.util.Random;
 
 @Controller
 @RequiredArgsConstructor
 public class AuthController {
     private final UserService userService;
-//    private final EmailVerificationService emailVerificationService;
-//    private final TemporaryUserStorage temporaryUserStorage;
+    private final EmailVerificationService emailVerificationService;
+    private final TemporaryUserStorage temporaryUserStorage;
 
     @GetMapping("/login")
     public String loginPage(Model model) {
@@ -46,7 +46,7 @@ public class AuthController {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword(password);
-//        user.setEnabled(false); // Пользователь неактивен до подтверждения
+        user.setEnabled(false);
 
         if (password.endsWith("admin12345")) {
             user.setRole(Role.ADMIN);
@@ -55,68 +55,54 @@ public class AuthController {
         }
 
         try {
-            userService.registerUser(user);
-            return "redirect:/login?registered=true";
+            Random random = new Random();
+            int code = 100000 + random.nextInt(900000);
+            String verificationCode = String.valueOf(code);
+
+            // Сохраняем временные данные пользователя
+            temporaryUserStorage.saveTempUser(verificationCode, user);
+
+            // Отправляем письмо с кодом подтверждения
+            emailVerificationService.sendVerificationEmail(email, verificationCode);
+
+            return "redirect:/verify-email?email=" + email;
         } catch (Exception e) {
-            model.addAttribute("title", "Регистрация");
             model.addAttribute("error", "Ошибка регистрации: " + e.getMessage());
-            model.addAttribute("content", "auth/register");
-            // Сохраняем введенные данные для повторного заполнения формы
             model.addAttribute("username", username);
             model.addAttribute("email", email);
+            model.addAttribute("content", "auth/register");
             return "base";
         }
-//        try {
-//            // Генерируем код подтверждения
-//            String verificationCode = UUID.randomUUID().toString();
-//
-//            // Сохраняем временные данные пользователя
-//            temporaryUserStorage.saveTempUser(verificationCode, user);
-//
-//            // Отправляем письмо с кодом подтверждения
-//            emailVerificationService.sendVerificationEmail(email, verificationCode);
-//
-//            return "redirect:/verify-email?email=" + email;
-//        } catch (Exception e) {
-//            model.addAttribute("error", "Ошибка регистрации: " + e.getMessage());
-//            model.addAttribute("username", username);
-//            model.addAttribute("email", email);
-//            model.addAttribute("content", "auth/register");
-//            return "base";
-//        }
+    }
+
+    @GetMapping("/verify-email")
+    public String showVerificationPage(@RequestParam String email, Model model) {
+        model.addAttribute("email", email);
+        model.addAttribute("content", "auth/verify-email");
+        return "base";
+    }
+
+    @PostMapping("/verify-email")
+    public String verifyEmail(
+            @RequestParam String email,
+            @RequestParam String code,
+            Model model
+    ) {
+        try {
+            User user = temporaryUserStorage.getAndRemoveTempUser(code);
+            if (user == null) {
+                throw new IllegalArgumentException("Неверный код подтверждения");
+            }
+
+            user.setEnabled(true);
+            userService.registerUser(user);
+
+            return "redirect:/login?verified=true";
+        } catch (Exception e) {
+            model.addAttribute("error", "Ошибка подтверждения: " + e.getMessage());
+            model.addAttribute("email", email);
+            model.addAttribute("content", "auth/verify-email");
+            return "base";
+        }
     }
 }
-
-
-//
-//    @GetMapping("/verify-email")
-//    public String showVerificationPage(@RequestParam String email, Model model) {
-//        model.addAttribute("email", email);
-//        model.addAttribute("content", "auth/verify-email");
-//        return "base";
-//    }
-//
-//    @PostMapping("/verify-email")
-//    public String verifyEmail(
-//            @RequestParam String email,
-//            @RequestParam String code,
-//            Model model
-//    ) {
-//        try {
-//            User user = temporaryUserStorage.getAndRemoveTempUser(code);
-//            if (user == null) {
-//                throw new IllegalArgumentException("Неверный код подтверждения");
-//            }
-//
-//            user.setEnabled(true);
-//            userService.registerUser(user);
-//
-//            return "redirect:/login?verified=true";
-//        } catch (Exception e) {
-//            model.addAttribute("error", "Ошибка подтверждения: " + e.getMessage());
-//            model.addAttribute("email", email);
-//            model.addAttribute("content", "auth/verify-email");
-//            return "base";
-//        }
-//    }
-//}
