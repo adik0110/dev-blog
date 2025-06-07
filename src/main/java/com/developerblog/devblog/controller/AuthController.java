@@ -2,8 +2,8 @@ package com.developerblog.devblog.controller;
 
 import com.developerblog.devblog.entity.Role;
 import com.developerblog.devblog.entity.User;
-import com.developerblog.devblog.service.EmailVerificationService;
-import com.developerblog.devblog.service.TemporaryUserStorage;
+//import com.developerblog.devblog.service.EmailVerificationService;
+//import com.developerblog.devblog.service.TemporaryUserStorage;
 import com.developerblog.devblog.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -18,8 +18,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthController {
     private final UserService userService;
-    private final EmailVerificationService emailVerificationService;
-    private final TemporaryUserStorage temporaryUserStorage;
+//    private final EmailVerificationService emailVerificationService;
+//    private final TemporaryUserStorage temporaryUserStorage;
 
     @GetMapping("/login")
     public String loginPage(Model model) {
