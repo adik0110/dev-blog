@@ -6,6 +6,7 @@ import com.developerblog.devblog.repository.PostRepository;
 import com.developerblog.devblog.repository.RatingVoteRepository;
 import com.developerblog.devblog.repository.TagRepository;
 import com.developerblog.devblog.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,22 +26,21 @@ public class PostService {
     public final RatingVoteRepository ratingVoteRepository;
 
     @Transactional
-    public PostDto createPost(PostDto postDto, String username) {
+    public void createPost(PostDto postDto, String username, List<Long> tagIds) {
         User author = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
 
         Post post = new Post();
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
         post.setAuthor(author);
 
-        if (postDto.getTagIds() != null && !postDto.getTagIds().isEmpty()) {
-            List<Tag> tags = tagRepository.findAllById(postDto.getTagIds());
+        if (tagIds != null && !tagIds.isEmpty()) {
+            List<Tag> tags = tagRepository.findAllById(tagIds);
             post.setTags(tags);
         }
 
         postRepository.save(post);
-        return postDto;
     }
 
     @Transactional(readOnly = true)

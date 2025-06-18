@@ -24,7 +24,7 @@ public class Post {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "post_tags",
             joinColumns = @JoinColumn(name = "post_id"),

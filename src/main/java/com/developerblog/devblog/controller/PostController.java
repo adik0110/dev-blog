@@ -3,6 +3,11 @@ package com.developerblog.devblog.controller;
 import com.developerblog.devblog.dto.PostDto;
 import com.developerblog.devblog.service.PostService;
 import com.developerblog.devblog.service.TagService;
+import jakarta.validation.Valid;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
+@Slf4j
 @Controller
 @RequestMapping("/posts")
 public class PostController {
@@ -31,20 +37,21 @@ public class PostController {
     }
 
     @PostMapping("/create")
-    public String createPost(@ModelAttribute PostDto postDto,
-                             Principal principal,
-                             Model model) {
+    public ResponseEntity<?> createPost(@RequestBody @Valid PostDto postDto, Principal principal) {
         try {
-            postService.createPost(postDto, principal.getName());
-            return "redirect:/";
+            postService.createPost(postDto, principal.getName(), postDto.getTagIds());
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
-            model.addAttribute("title", "Создание статьи");
-            model.addAttribute("content", "posts/create");
-            model.addAttribute("error", "Ошибка при создании статьи: " + e.getMessage());
-            model.addAttribute("allTags", tagService.getAllTags());
-            return "base";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(e.getMessage()));
         }
     }
+
+    @Data
+    private static class ErrorResponse {
+        private final String message;
+    }
+
 
     @GetMapping()
     public String listPosts(Model model) {
