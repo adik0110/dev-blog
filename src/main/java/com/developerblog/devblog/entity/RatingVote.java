@@ -2,7 +2,6 @@ package com.developerblog.devblog.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "rating_votes")

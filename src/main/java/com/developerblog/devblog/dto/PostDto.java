@@ -22,16 +22,7 @@ public class PostDto {
     private List<String> tags;
     private Integer likesCount;
     private Integer dislikesCount;
-    private String currentUserVote; // "LIKE", "DISLIKE" или null
+    private String currentUserVote;
     private List<CommentDto> comments;
     private LocalDateTime createdAt;
-
-    public Integer getTotalVotes() {
-        return (likesCount != null ? likesCount : 0) + (dislikesCount != null ? dislikesCount : 0);
-    }
-
-    public Integer getLikePercentage() {
-        if (getTotalVotes() == 0) return 0;
-        return (int) Math.round((likesCount * 100.0) / getTotalVotes());
-    }
 }

@@ -26,7 +26,7 @@ public class PostService {
     public final RatingVoteRepository ratingVoteRepository;
 
     @Transactional
-    public void createPost(PostDto postDto, String username, List<Long> tagIds) {
+    public PostDto createPost(PostDto postDto, String username, List<Long> tagIds) {
         User author = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
 
@@ -41,6 +41,7 @@ public class PostService {
         }
 
         postRepository.save(post);
+        return postDto;
     }
 
     @Transactional(readOnly = true)
@@ -80,7 +81,6 @@ public class PostService {
         if (existingVote.isPresent()) {
             RatingVote vote = existingVote.get();
             if (vote.getVoteType() == voteType) {
-                // Удаляем голос, если он такой же
                 ratingVoteRepository.delete(vote);
                 if (voteType == VoteType.LIKE) {
                     post.setLikesCount(post.getLikesCount() - 1);
@@ -88,7 +88,6 @@ public class PostService {
                     post.setDislikesCount(post.getDislikesCount() - 1);
                 }
             } else {
-                // Меняем голос на противоположный
                 vote.setVoteType(voteType);
                 if (voteType == VoteType.LIKE) {
                     post.setLikesCount(post.getLikesCount() + 1);
@@ -100,7 +99,6 @@ public class PostService {
                 ratingVoteRepository.save(vote);
             }
         } else {
-            // Добавляем новый голос
             RatingVote newVote = new RatingVote();
             newVote.setPost(post);
             newVote.setUser(user);

@@ -41,12 +41,10 @@ public class TagService {
             throw new EntityNotFoundException("Tag not found with id: " + id);
         }
 
-        // Удаляем связи из таблицы post_tags
         entityManager.createNativeQuery("DELETE FROM post_tags WHERE tag_id = :tagId")
                 .setParameter("tagId", id)
                 .executeUpdate();
 
-        // Удаляем сам тег
         tagRepository.deleteById(id);
     }
 }

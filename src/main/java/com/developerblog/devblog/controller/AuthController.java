@@ -59,10 +59,8 @@ public class AuthController {
             int code = 100000 + random.nextInt(900000);
             String verificationCode = String.valueOf(code);
 
-            // Сохраняем временные данные пользователя
             temporaryUserStorage.saveTempUser(verificationCode, user);
 
-            // Отправляем письмо с кодом подтверждения
             emailVerificationService.sendVerificationEmail(email, verificationCode);
 
             return "redirect:/verify-email?email=" + email;

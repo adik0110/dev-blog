@@ -18,7 +18,7 @@ public class MainController {
     public String index(Model model) {
         model.addAttribute("title", "Главная страница");
         model.addAttribute("content", "index");
-        model.addAttribute("latestPosts", postService.get5TopRecentPosts()); // Метод для получения 5 последних статей
+        model.addAttribute("latestPosts", postService.get5TopRecentPosts());
         return "base";
     }
 }

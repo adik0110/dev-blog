@@ -101,10 +101,8 @@ public class PostController {
     public String showEditForm(@PathVariable Long postId,
                                Principal principal,
                                Model model) {
-        // Передаем имя пользователя в getPostById
         PostDto postDto = postService.getPostById(postId, principal != null ? principal.getName() : null);
 
-        // Проверка прав доступа
         if (!principal.getName().equals(postDto.getAuthorUsername())) {
             throw new AccessDeniedException("Вы не можете редактировать этот пост");
         }
@@ -120,7 +118,6 @@ public class PostController {
     public String updatePost(@PathVariable Long postId,
                              @ModelAttribute PostDto postDto,
                              Principal principal) {
-        // Проверка прав доступа с передачей имени пользователя
         PostDto existingPost = postService.getPostById(postId, principal != null ? principal.getName() : null);
         if (!principal.getName().equals(existingPost.getAuthorUsername())) {
             throw new AccessDeniedException("Вы не можете редактировать этот пост");
@@ -133,7 +130,6 @@ public class PostController {
     @PostMapping("/{postId}/delete")
     public String deletePost(@PathVariable Long postId,
                              Principal principal) {
-        // Проверка прав доступа с передачей имени пользователя
         PostDto existingPost = postService.getPostById(postId, principal != null ? principal.getName() : null);
         if (!principal.getName().equals(existingPost.getAuthorUsername())) {
             throw new AccessDeniedException("Вы не можете удалить этот пост");
