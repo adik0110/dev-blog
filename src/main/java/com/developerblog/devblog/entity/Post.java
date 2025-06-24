@@ -51,4 +51,10 @@ public class Post {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Transient
+    public Integer getLikePercentage() {
+        if (getTotalVotes() == 0) return 0;
+        return (int) Math.round((likesCount * 100.0) / getTotalVotes());
+    }
 }
